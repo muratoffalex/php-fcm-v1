@@ -83,6 +83,13 @@ class Client {
         }
     }
 
+    public function send(Recipient $recipient, Notification $notification = null, Data $data = null, CommonConfig $config = null) {
+        $this->build($recipient, $notification, $data, $config);
+        $response = $this->fire();
+
+        return $response;
+    }
+
     /**
      * @return array
      */

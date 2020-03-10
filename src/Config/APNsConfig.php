@@ -14,36 +14,100 @@ use Exception;
 
 class APNsConfig implements CommonConfig {
     const PRIORITY_HIGH = '10', PRIORITY_NORMAL = '5';
-    private $payload;
 
-    public function __construct() {
-        $this -> payload = array();
+    // headers
+    const COLLAPSE_KEY = 'apns-collapse-id';
+    const PRIORITY = 'apns-priority';
+    const PUSH_TYPE = 'apns-push-type';
+    const EXPIRATION = 'apns-expiration';
+
+    // aps
+    const SOUND = 'sound';
+    const BADGE = 'badge';
+    const CLICK_ACTION = 'category';
+
+    const PUSH_TYPE_BACKGROUND = 'background',
+        PUSH_TYPE_ALERT = 'alert',
+        PUSH_TYPE_VOIP = 'voip',
+        PUSH_TYPE_COMPLICATION = 'complication',
+        PUSH_TYPE_FILEPROVIDER = 'fileprovider',
+        PUSH_TYPE_MDM = 'mdm';
+
+    private $headers;
+    private $aps;
+
+    public function __construct()
+    {
+        $this->headers = [];
+        $this->aps = [];
     }
 
     public function __invoke() {
-        return $this -> getPayload();
+        return $this->getPayload();
+    }
+
+    function setHeader(string $name, $value) {
+        $this->headers[$name] = $value;
+
+        return $this;
+    }
+
+    function setAPS(string $name, $value) {
+        $this->aps[$name] = $value;
+
+        return $this;
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @return mixed
      */
     function setCollapseKey($key) {
-        $payload = array_merge($this -> payload, array('apns-collapse-id' => $key));
-        $this -> payload = $payload;
-
-        return null;
+        return $this->setHeader(SELF::COLLAPSE_KEY, $key);
     }
 
     /**
-     * @param $priority
+     * @param integer $priority
      * @return mixed
      */
     function setPriority($priority) {
-        $payload = array_merge($this -> payload, array('apns-priority' => $priority));
-        $this -> payload = $payload;
+        return $this->setHeader(SELF::PRIORITY);
+    }
 
-        return null;
+    /**
+     * For ios 13
+     *
+     * @param string $pushType
+     * @return $this
+     */
+    function setPushType($pushType) {
+        return $this->setHeader(SELF::PUSH_TYPE, $pushType);
+    }
+
+    /**
+     * @param string $sound
+     * @return mixed
+     */
+    function setSound($sound) {
+        return $this->setAPS(SELF::SOUND, $sound);
+    }
+
+    /**
+     * Will add small red bubbles indicating the number of notifications to your apps icon
+     *
+     * @param integer $sound
+     * @return mixed
+     */
+    function setBadge($badge) {
+        return $this->setAPS(SELF::BADGE, $badge);
+    }
+
+    /**
+     * @param string $actionName
+     * @return mixed
+     */
+    function setClickAction($actionName) {
+        return $this->setAPS(SELF::CLICK_ACTION, $actionName);
     }
 
     /**
@@ -56,23 +120,29 @@ class APNsConfig implements CommonConfig {
         $expiration -> add(new DateInterval('PT' . $time . 'S'));
         $expValue = $expiration -> format('U');
 
-        $payload = array_merge($this -> payload, array('apns-expiration' => $expValue));
-        $this -> payload = $payload;
-
-        return null;
+        return $this->setHeader(SELF::EXPIRATION, $expValue);
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getPayload() {
-        if (!sizeof($this -> payload)) {
-            // To prevent erorr on array_merge. Returns empty array
-            return $this -> payload;
+        $payload = array();
+
+        if (!empty($this->headers)) {
+            $payload['headers'] = $this->headers;
+        }
+
+        if (!empty($this->aps)) {
+            $payload['payload'] = array('aps' => $this->aps);
+        }
+
+        if (!empty($payload)) {
+            return [
+                'apns' => $payload
+            ];
         } else {
-            // 'apns' should have 'header' & 'payload' field
-            $payload = array('apns' => array('headers' => $this -> payload));
-            return $payload;
+            return [];
         }
     }
 

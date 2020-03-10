@@ -15,8 +15,9 @@ use phpFCMv1\Config\CommonConfig;
 class Config implements CommonConfig {
     const PRIORITY_HIGH = 1;
     const PRIORITY_NORMAL = 2;
-    private $androidConfig;
-    private $apnsConfig;
+
+    public $androidConfig;
+    public $apnsConfig;
 
     public function __construct() {
         $this -> androidConfig = new AndroidConfig();
@@ -24,20 +25,89 @@ class Config implements CommonConfig {
     }
 
     /**
-     *
-     * @param $key
-     * @return mixed
+     * @param string $key
+     * @return $this
      */
     function setCollapseKey($key) {
         $this -> androidConfig -> setCollapseKey($key);
         $this -> apnsConfig -> setCollapseKey($key);
 
-        return null;
+        return $this;
     }
 
     /**
-     * @param $priority
-     * @return mixed
+     * only for android
+     *
+     * @param $icon
+     * @return $this
+     */
+    function setIcon($icon) {
+        $this->androidConfig->setIcon($icon);
+
+        return $this;
+    }
+
+    /**
+     * only for android
+     *
+     * @param $tag
+     * @return $this
+     */
+    function setTag($tag) {
+        $this->androidConfig->setTag($tag);
+
+        return $this;
+    }
+
+    /**
+     * only for android
+     *
+     * @param $color
+     * @return $this
+     */
+    function setColor($color) {
+        $this->androidConfig->setColor($color);
+
+        return $this;
+    }
+
+    /**
+     * @param string $actionName
+     * @return $this
+     */
+    function setClickAction($actionName) {
+        $this -> androidConfig -> setClickAction($actionName);
+        $this -> apnsConfig -> setClickAction($actionName);
+
+        return $this;
+    }
+
+    /**
+     * ios only: Will add small red bubbles indicating the number of notifications to your apps icon
+     *
+     * @param integer $badge
+     * @return $this
+     */
+    function setBadge($badge) {
+        $this->apnsConfig->setBadge($badge);
+
+        return $this;
+    }
+
+    /**
+     * @param string $sound
+     * @return $this
+     */
+    function setSound($sound) {
+        $this -> androidConfig -> setSound($sound);
+        $this -> apnsConfig -> setSound($sound);
+
+        return $this;
+    }
+
+    /**
+     * @param integer $priority
+     * @return $this
      */
     function setPriority($priority) {
         switch ($priority) {
@@ -54,12 +124,23 @@ class Config implements CommonConfig {
                 break;
         }
 
-        return null;
+        return $this;
     }
 
     /**
-     * @param $time : seconds
-     * @return mixed
+     * Only for ios
+     *
+     * @param string $type
+     */
+    function setPushType(string $type) {
+        $this->apnsConfig->setPushType($type);
+
+        return $this;
+    }
+
+    /**
+     * @param integer $time : seconds
+     * @return $this
      */
     function setTimeToLive($time) {
         try {
@@ -69,7 +150,7 @@ class Config implements CommonConfig {
 
         }
 
-        return null;
+        return $this;
     }
 
     /**

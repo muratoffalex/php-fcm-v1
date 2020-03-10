@@ -10,10 +10,37 @@ namespace phpFCMv1\Config;
 
 class AndroidConfig implements CommonConfig {
     const PRIORITY_HIGH = 'HIGH', PRIORITY_NORMAL = 'NORMAL';
+
+    const CLICK_ACTION = 'click_action';
+    const SOUND = 'sound';
+    const ICON = 'icon';
+    const TAG = 'tag';
+    const COLOR = 'color';
+
+    // notification
+    const PRIORITY = 'priority';
+    const COLLAPSE_KEY = 'collapse_key';
+    const TIME_TO_LIVE = 'ttl';
+
+    private $notification;
     private $payload;
 
-    public function __construct() {
-        $this -> payload = array();
+    public function __construct()
+    {
+        $this->notification = [];
+        $this->payload = [];
+    }
+
+    private function setPayload(string $name, $value) {
+        $this->payload[$name] = $value;
+
+        return $this;
+    }
+
+    private function setNotification(string $name, $value) {
+        $this->notification[$name] = $value;
+
+        return $this;
     }
 
     /**
@@ -21,10 +48,31 @@ class AndroidConfig implements CommonConfig {
      * @return mixed
      */
     function setCollapseKey($key) {
-        $payload = array_merge($this -> payload, array('collapse_key' => $key));
-        $this -> payload = $payload;
+        return $this->setPayload(SELF::COLLAPSE_KEY, $key);;
+    }
 
-        return null;
+    /**
+     * @param $color
+     * @return $this
+     */
+    function setColor($color) {
+        return $this->setNotification(SELF::COLOR, $color);
+    }
+
+    /**
+     * @param $icon
+     * @return $this
+     */
+    function setIcon($icon) {
+        return $this->setNotification(SELF::ICON, $icon);
+    }
+
+    /**
+     * @param $tag
+     * @return $this
+     */
+    function setTag($tag) {
+        return $this->setNotification(SELF::TAG, $tag);
     }
 
     /**
@@ -32,10 +80,23 @@ class AndroidConfig implements CommonConfig {
      * @return mixed
      */
     function setPriority($priority) {
-        $payload = array_merge($this -> payload, array('priority' => $priority));
-        $this -> payload = $payload;
+        return $this->setPayload(SELF::PRIORITY, $priority);
+    }
 
-        return null;
+    /**
+     * @param $actionName
+     * @return mixed
+     */
+    function setClickAction($actionName) {
+        return $this->setNotification(SELF::CLICK_ACTION, $actionName);
+    }
+
+    /**
+     * @param $sound
+     * @return mixed
+     */
+    function setSound($sound) {
+        return $this->setNotification(SELF::SOUND, $sound);
     }
 
     /**
@@ -43,26 +104,38 @@ class AndroidConfig implements CommonConfig {
      * @return mixed
      */
     function setTimeToLive($time) {
-        $payload = array_merge($this -> payload, array('ttl' => $time . 's'));
-        $this -> payload = $payload;
+        return $this->setPayload(SELF::TIME_TO_LIVE, $time . 's');
+    }
 
-        return null;
+    /**
+     * Set custom notification settings
+     *
+     * @param string $name
+     * @param mixed $value
+     */
+    function setCustomNotificationSettings(string $name, $value) {
+        return $this->setNotification($name, $value);
     }
 
     /**
      * @return mixed
      */
-    public function getPayload() {
-        if (!sizeof($this -> payload)) {
-            return null;
+    public function getPayload()
+    {
+        if (!empty($this->notification)) {
+            $this->payload["notification"] = $this->notification;
+        }
+
+        if (!empty($this->payload)) {
+            return [
+                'android' => $this->payload
+            ];
         } else {
-            $payload = array('android' => $this -> payload);
-            return $payload;
+            return [];
         }
     }
 
     function __invoke() {
-        // TODO: Implement __invoke() method.
         return $this -> getPayload();
     }
 }

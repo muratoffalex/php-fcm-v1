@@ -86,3 +86,5 @@ report/
 
 # PHP Unit Local Test Configureation
 phpunit.local.xml
+
+.DS_STORE

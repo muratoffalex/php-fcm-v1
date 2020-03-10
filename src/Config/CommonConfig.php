@@ -24,6 +24,18 @@ interface CommonConfig {
     function setPriority($priority);
 
     /**
+     * @param $sound
+     * @return mixed
+     */
+    function setSound($sound);
+
+    /**
+     * @param $actionName
+     * @return mixed
+     */
+    function setClickAction($actionName);
+
+    /**
      * @param $time
      * @return mixed
      */
